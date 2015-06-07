@@ -12,5 +12,5 @@ def iterate(N):
         n = n + 2 # keep odd
         print s
 
-iterate(10)
+iterate(10**4)
 
