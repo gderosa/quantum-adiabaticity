@@ -23,12 +23,12 @@ def eigen_f(n, x): # in [0, 2*pi]
 
 # iterate(10**4)
 
-for n in range(1, 100):
+for n in range(1, 1000):
     N_i = integrate.quad(
                 lambda x: eigen_i(n, x)**2, 0, pi
             )
     N_f = integrate.quad(
-                lambda x: eigen_f(n, x)**2, 0, 2**pi
+                lambda x: eigen_f(n, x)**2, 0, 2*pi
             )
     print N_i, N_f
 
