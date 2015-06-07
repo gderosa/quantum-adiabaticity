@@ -1,6 +1,7 @@
 from math import pi, sqrt, sin
 
 from scipy import integrate
+from skmonaco import mcquad
 
 def c2(n):
     n = float(n)
@@ -24,23 +25,31 @@ def check_norms(N):
         print N_i, N_f
 
 def c(ni, nf): # eigenfunctions are real
-    return integrate.quad(
-                lambda x: eigen_f(nf, x) * eigen_i(ni, x), # < bra | ket >
-                0, pi
+    return mcquad(
+                lambda x: eigen_f(nf, x[0]) * eigen_i(ni, x[0]), # < bra | ket >
+                npoints=3e5*(ni*nf)**1.65, xl=[0.], xu=[pi]
             )
+
+def even(x):
+    return abs((x / 2.0) - round(x / 2.0)) < 0.25
 
 def check_convergence(ni, N):
     nf = 1
     s = 0.0
+    discarded=0
     while nf < N:
-        cnf, err = c(ni, nf)
-        if 20 * abs(err) > abs(cnf): # discard if more than 5% numeric error
+        if even(nf) and round(nf) != 2:
             pass
-            # print 'DISCARDED unstable numeric integral: ' + str(cnf) + ' +/- ' + str(err)
         else:
-            s = s + cnf**2
-            print '+ (' + str(cnf) + ' +/- ' + str(err) + ')**2 = ' + str(s)
+            cnf, err = c(ni, nf)
+            if 20. * abs(err) > abs(cnf): # discard if more than 5% numeric error
+                print 'DISCARDED unstable numeric integral: ' + str(cnf) + ' +/- ' + str(err)
+                discarded = discarded + 1
+            else:
+                s = s + cnf**2
+                print '+ (' + str(cnf) + ' +/- ' + str(err) + ')**2 = ' + str(s)
+            print '  #' + str(nf) + '  discarded=' + str(discarded)
         nf = nf + 1
 
-check_convergence(1, 10**4)
+check_convergence(1, 1000)
 
