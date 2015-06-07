@@ -25,10 +25,21 @@ def check_norms(N):
         print N_i, N_f
 
 def c(ni, nf): # eigenfunctions are real
-    return mcquad(
+    val, err = 1., 1.
+    try:
+        c.npoints = c.npoints
+    except AttributeError:
+        c.npoints = 1e4
+    while True:
+        print 'npoints=' + str(c.npoints)
+        val, err = mcquad(
                 lambda x: eigen_f(nf, x[0]) * eigen_i(ni, x[0]), # < bra | ket >
-                npoints=3e5*(ni*nf)**1.65, xl=[0.], xu=[pi]
+                npoints=c.npoints, xl=[0.], xu=[pi]
             )
+        if abs(err / val) < 1e-2:
+            return (val, err)
+        else:
+            c.npoints = c.npoints * 3
 
 def even(x):
     return abs((x / 2.0) - round(x / 2.0)) < 0.25
