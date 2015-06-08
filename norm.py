@@ -24,6 +24,7 @@ def check_norms(N):
                 )
         print N_i, N_f
 
+"""
 def c(ni, nf): # eigenfunctions are real
     val, err = 1., 1.
     try:
@@ -40,6 +41,17 @@ def c(ni, nf): # eigenfunctions are real
             return (val, err)
         else:
             c.npoints = c.npoints * 3
+"""
+
+def c(ni, nf): # eigenfunctions are real
+    return integrate.quadrature(
+        lambda x: eigen_f(nf, x) * eigen_i(ni, x), # < bra | ket >
+        0., pi,
+        rtol=1e-8, maxiter=1000,
+        vec_func=False
+    )
+    
+
 
 def even(x):
     return abs((x / 2.0) - round(x / 2.0)) < 0.25
