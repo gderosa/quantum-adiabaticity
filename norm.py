@@ -47,7 +47,7 @@ def c(ni, nf): # eigenfunctions are real
     return integrate.quadrature(
         lambda x: eigen_f(nf, x) * eigen_i(ni, x), # < bra | ket >
         0., pi,
-        rtol=1e-8, maxiter=1000,
+        rtol=1e-5, maxiter=1000,
         vec_func=False
     )
     
