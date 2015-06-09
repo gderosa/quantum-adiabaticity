@@ -1,13 +1,8 @@
-from math import pi, sqrt, sin
+from cmath import pi, sqrt, sin, exp
 
 from scipy import integrate
 from skmonaco import mcquad
 
-"""
-def c2(n):
-    n = float(n)
-    return 4*(pi**2)*(n**2) / ((n+2)**2 * (n-2)**2)
-"""
 
 def eigen_i(n, x): # in [0, pi], 0 elsewhere
     return sqrt(2.0/pi)*sin(n*x)
@@ -34,15 +29,18 @@ def c(ni, nf): # eigenfunctions are real
         vec_func=False
     )
 
-def c1_analytic_2(nf):
+def c1_analytic(nf):
     if even(nf):
         if abs(nf-2.) < 0.25 :
-            return 0.5
+            return 1./sqrt(2)
         else:
             return 0.0
     else:
-        # unsquared, there was a sin(nf*pi/2.), equals 1 for nf odd
-        return (32./pi**2) * ( 1. / (((nf+2.)*(nf-2.))**2) )
+        return (4.*sqrt(2)/pi) * ( 1. / ((nf+2.)*(nf-2.)) ) * sin(nf*pi/2.)
+
+
+def c1_analytic_2(nf):
+    return c1_analytic(nf)**2
 
 
 def even(x):
@@ -75,7 +73,30 @@ def check_convergence_analytic_1(N):
         print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
         nf = nf + 1.
 
+def evolve(x, t, iterations=2000):
+    s = 0.0
+    for nf in range(1, iterations):
+        E = nf**2 / 8.
+        omega = E
+        s = s + c1_analytic(nf) * eigen_f(nf, x) * exp(-1j*omega*t)
+    return s
+
+def evolve_all(dx=0.01, dt=0.1, T=20):
+    x = 0.0
+    t = 0.0
+    while t < T:
+        f = open('data/%011.5f.dat' % t, 'w')
+        while x < 2 * pi:
+            evolve_ = evolve(x, t)
+            f.write('%f %0.15f %0.15f\n' % (x, evolve_.real, evolve_.imag))
+            x = x + dx
+        f.close()
+        x = 0.0
+        t = t + dt
+
+evolve_all()
+
 # check_convergence(1, 1000)
 
-check_convergence_analytic_1(1004)
+#check_convergence_analytic_1(10034)
 
