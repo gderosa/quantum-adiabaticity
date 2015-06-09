@@ -3,6 +3,12 @@ from cmath import pi, sqrt, sin, exp
 from scipy import integrate
 from skmonaco import mcquad
 
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 
 def eigen_i(n, x): # in [0, pi], 0 elsewhere
     return sqrt(2.0/pi)*sin(n*x)
@@ -73,7 +79,7 @@ def check_convergence_analytic_1(N):
         print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
         nf = nf + 1.
 
-def evolve(x, t, iterations=2000):
+def evolve(x, t, iterations=990):
     s = 0.0
     for nf in range(1, iterations):
         E = nf**2 / 8.
@@ -81,20 +87,39 @@ def evolve(x, t, iterations=2000):
         s = s + c1_analytic(nf) * eigen_f(nf, x) * exp(-1j*omega*t)
     return s
 
-def evolve_all(dx=0.01, dt=0.1, T=20):
-    x = 0.0
-    t = 0.0
-    while t < T:
-        f = open('data/%011.5f.dat' % t, 'w')
-        while x < 2 * pi:
-            evolve_ = evolve(x, t)
-            f.write('%f %0.15f %0.15f\n' % (x, evolve_.real, evolve_.imag))
-            x = x + dx
-        f.close()
-        x = 0.0
-        t = t + dt
+# Returns, X, Y, Z numpy vectors for matplotlib3d; where Z is the
+# independent variable and X, Y real and imaginary parts of Psi.
+def evolve_v(t):
+    Z = np.linspace(0, 2*pi, 960)
+    Re = np.ndarray(Z.size)
+    Im = np.ndarray(Z.size)
+    it = np.nditer(Z, flags=['f_index'])
+    while not it.finished:
+        i = it.index
+        z = it[0]
+        Psi = evolve(z, t)
+        Re[i], Im[i] = Psi.real, Psi.imag
+        it.iternext()
+    return Re, Im, Z
 
-evolve_all()
+
+
+
+
+mpl.rcParams['legend.fontsize'] = 10
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+X, Y, Z = evolve_v(1e-80)
+ax.plot(X, Y, Z, label='hello quantum')
+ax.legend()
+
+plt.show()
+
+
+
+
+
+# evolve_all()
 
 # check_convergence(1, 1000)
 
