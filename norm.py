@@ -3,9 +3,11 @@ from math import pi, sqrt, sin
 from scipy import integrate
 from skmonaco import mcquad
 
+"""
 def c2(n):
     n = float(n)
     return 4*(pi**2)*(n**2) / ((n+2)**2 * (n-2)**2)
+"""
 
 def eigen_i(n, x): # in [0, pi], 0 elsewhere
     return sqrt(2.0/pi)*sin(n*x)
@@ -24,25 +26,6 @@ def check_norms(N):
                 )
         print N_i, N_f
 
-"""
-def c(ni, nf): # eigenfunctions are real
-    val, err = 1., 1.
-    try:
-        c.npoints = c.npoints
-    except AttributeError:
-        c.npoints = 1e4
-    while True:
-        print 'npoints=' + str(c.npoints)
-        val, err = mcquad(
-                lambda x: eigen_f(nf, x[0]) * eigen_i(ni, x[0]), # < bra | ket >
-                npoints=c.npoints, xl=[0.], xu=[pi]
-            )
-        if abs(err / val) < 1e-2:
-            return (val, err)
-        else:
-            c.npoints = c.npoints * 3
-"""
-
 def c(ni, nf): # eigenfunctions are real
     return integrate.quadrature(
         lambda x: eigen_f(nf, x) * eigen_i(ni, x), # < bra | ket >
@@ -50,7 +33,16 @@ def c(ni, nf): # eigenfunctions are real
         rtol=1e-5, maxiter=1000,
         vec_func=False
     )
-    
+
+def c1_analytic_2(nf):
+    if even(nf):
+        if abs(nf-2.) < 0.25 :
+            return 0.5
+        else:
+            return 0.0
+    else:
+        # unsquared, there was a sin(nf*pi/2.), equals 1 for nf odd
+        return (32./pi**2) * ( 1. / (((nf+2.)*(nf-2.))**2) )
 
 
 def even(x):
@@ -74,5 +66,16 @@ def check_convergence(ni, N):
             print '  #' + str(nf) + '  discarded=' + str(discarded)
         nf = nf + 1
 
-check_convergence(1, 1000)
+def check_convergence_analytic_1(N):
+    nf = 1.
+    s = 0.0
+    while nf < N:
+        add = c1_analytic_2(nf)
+        s = s + add
+        print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
+        nf = nf + 1.
+
+# check_convergence(1, 1000)
+
+check_convergence_analytic_1(1004)
 
