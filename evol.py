@@ -79,7 +79,7 @@ def check_convergence_analytic_1(N):
         print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
         nf = nf + 1.
 
-def evolve(x, t, iterations=1990):
+def evolve(x, t, iterations=500):
     s = 0.0
     for nf in range(1, iterations):
         E = nf**2 / 8.
@@ -90,7 +90,7 @@ def evolve(x, t, iterations=1990):
 # Returns, X, Y, Z numpy vectors for matplotlib3d; where Z is the
 # independent variable and X, Y real and imaginary parts of Psi.
 def evolve_v(t):
-    Z = np.linspace(0, 2*pi, 1960)
+    Z = np.linspace(0, 2*pi, 700)
     Re = np.ndarray(Z.size)
     Im = np.ndarray(Z.size)
     it = np.nditer(Z, flags=['f_index'])
@@ -107,15 +107,18 @@ def evolve_v(t):
 
 
 mpl.rcParams['legend.fontsize'] = 10
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-X, Y, Z = evolve_v(0.1)
-ax.plot(X, Y, Z, label='hello quantum', zdir='x')
-ax.legend()
-ax.set_xlim3d(0, 2*pi)
-ax.set_ylim3d(-0.4, 0.4)
-ax.set_zlim3d(-0.4, 0.4)
-plt.show()
+T = np.linspace(0.0, 2.0, 30)
+for t in np.nditer(T):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_xlim3d(0, 2*pi)
+    ax.set_ylim3d(-0.4, 0.4)
+    ax.set_zlim3d(-0.4, 0.4)
+    X, Y, Z = evolve_v(t)
+    ax.plot(X, Y, Z, label=str(t), zdir='x')
+    ax.legend()
+    plt.savefig('img/%08.4f.png' % t)
+    print t
 
 
 
