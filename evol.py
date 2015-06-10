@@ -1,13 +1,14 @@
-from math import pi, sqrt, sin
+from cmath import pi, sqrt, sin, exp
 
 from scipy import integrate
 from skmonaco import mcquad
 
-"""
-def c2(n):
-    n = float(n)
-    return 4*(pi**2)*(n**2) / ((n+2)**2 * (n-2)**2)
-"""
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 
 def eigen_i(n, x): # in [0, pi], 0 elsewhere
     return sqrt(2.0/pi)*sin(n*x)
@@ -34,15 +35,18 @@ def c(ni, nf): # eigenfunctions are real
         vec_func=False
     )
 
-def c1_analytic_2(nf):
+def c1_analytic(nf):
     if even(nf):
         if abs(nf-2.) < 0.25 :
-            return 0.5
+            return 1./sqrt(2)
         else:
             return 0.0
     else:
-        # unsquared, there was a sin(nf*pi/2.), equals 1 for nf odd
-        return (32./pi**2) * ( 1. / (((nf+2.)*(nf-2.))**2) )
+        return (4.*sqrt(2)/pi) * ( 1. / ((nf+2.)*(nf-2.)) ) * sin(nf*pi/2.) * (-1)
+
+
+def c1_analytic_2(nf):
+    return c1_analytic(nf)**2
 
 
 def even(x):
@@ -75,7 +79,54 @@ def check_convergence_analytic_1(N):
         print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
         nf = nf + 1.
 
+def evolve(x, t, iterations=500):
+    s = 0.0
+    for nf in range(1, iterations):
+        E = nf**2 / 8.
+        omega = E
+        s = s + c1_analytic(nf) * eigen_f(nf, x) * exp(-1j*omega*t)
+    return s
+
+# Returns, X, Y, Z numpy vectors for matplotlib3d; where Z is the
+# independent variable and X, Y real and imaginary parts of Psi.
+def evolve_v(t):
+    Z = np.linspace(0, 2*pi, 700)
+    Re = np.ndarray(Z.size)
+    Im = np.ndarray(Z.size)
+    it = np.nditer(Z, flags=['f_index'])
+    while not it.finished:
+        i = it.index
+        z = it[0]
+        Psi = evolve(z, t)
+        Re[i], Im[i] = Psi.real, Psi.imag
+        it.iternext()
+    return Re, Im, Z
+
+
+
+
+
+mpl.rcParams['legend.fontsize'] = 10
+T = np.linspace(0.0, 2.0, 30)
+for t in np.nditer(T):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    ax.set_xlim3d(0, 2*pi)
+    ax.set_ylim3d(-0.4, 0.4)
+    ax.set_zlim3d(-0.4, 0.4)
+    X, Y, Z = evolve_v(t)
+    ax.plot(X, Y, Z, label=str(t), zdir='x')
+    ax.legend()
+    plt.savefig('img/%08.4f.png' % t)
+    print t
+
+
+
+
+
+# evolve_all()
+
 # check_convergence(1, 1000)
 
-check_convergence_analytic_1(1004)
+#check_convergence_analytic_1(10034)
 
