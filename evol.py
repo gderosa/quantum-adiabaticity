@@ -42,7 +42,7 @@ def c1_analytic(nf):
         else:
             return 0.0
     else:
-        return (4.*sqrt(2)/pi) * ( 1. / ((nf+2.)*(nf-2.)) ) * sin(nf*pi/2.)
+        return (4.*sqrt(2)/pi) * ( 1. / ((nf+2.)*(nf-2.)) ) * sin(nf*pi/2.) * (-1)
 
 
 def c1_analytic_2(nf):
