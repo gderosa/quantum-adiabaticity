@@ -109,7 +109,7 @@ def evolve_v(t):
 mpl.rcParams['legend.fontsize'] = 10
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-X, Y, Z = evolve_v(1e-80)
+X, Y, Z = evolve_v(1e-2)
 ax.plot(X, Y, Z, label='hello quantum')
 ax.legend()
 
