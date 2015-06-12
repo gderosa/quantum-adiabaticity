@@ -1,3 +1,5 @@
+import sys
+
 from cmath import pi, sqrt, sin, exp
 
 from scipy import integrate
@@ -79,7 +81,7 @@ def check_convergence_analytic_1(N):
         print '  #' + str(nf) + '  +' + str(add) + ' = ' + str(s)
         nf = nf + 1.
 
-def evolve(x, t, iterations=500):
+def evolve(x, t, iterations=2500):
     s = 0.0
     for nf in range(1, iterations):
         E = nf**2 / 8.
@@ -90,12 +92,14 @@ def evolve(x, t, iterations=500):
 # Returns, X, Y, Z numpy vectors for matplotlib3d; where Z is the
 # independent variable and X, Y real and imaginary parts of Psi.
 def evolve_v(t):
-    Z = np.linspace(0, 2*pi, 700)
+    Z = np.linspace(0, 2*pi, 1000)
     Re = np.ndarray(Z.size)
     Im = np.ndarray(Z.size)
     it = np.nditer(Z, flags=['f_index'])
     while not it.finished:
         i = it.index
+        sys.stdout.write('.')
+        sys.stdout.flush()
         z = it[0]
         Psi = evolve(z, t)
         Re[i], Im[i] = Psi.real, Psi.imag
@@ -107,7 +111,7 @@ def evolve_v(t):
 
 
 mpl.rcParams['legend.fontsize'] = 10
-T = np.linspace(0.0, 2.0, 30)
+T = np.linspace(0.0, 2.0, 200)
 for t in np.nditer(T):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
@@ -118,6 +122,7 @@ for t in np.nditer(T):
     ax.plot(X, Y, Z, label=str(t), zdir='x')
     ax.legend()
     plt.savefig('img/%08.4f.png' % t)
+    fig.clear()
     print t
 
 
