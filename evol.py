@@ -111,7 +111,7 @@ def evolve_v(t):
 
 
 mpl.rcParams['legend.fontsize'] = 10
-T = np.linspace(0.0, 2.0, 200)
+T = np.linspace(0.0, 6.0, 200)
 for t in np.nditer(T):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
